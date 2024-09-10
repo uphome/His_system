@@ -1,0 +1,109 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flask Table and Modal Example</title>
+    <!-- 引入 Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* 你的样式代码，如果需要的话 */
+       .table-container {
+            width: 100%; /* 或者设置为你希望的最大宽度 */
+            margin: 0 auto; /* 水平和垂直居中（但垂直居中需要其他方法，这里只处理水平居中） */
+            display: flex; /* 使用Flexbox来更好地控制居中 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中（但在这个例子中可能不需要，因为body已经占据了整个屏幕高度） */
+            flex-direction: column; /* 确保内容在垂直方向上堆叠 */
+            height: 100vh; /* 使容器高度占满整个视口 */
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            margin: 0 auto; /* 表格自身也尝试居中，但在这个布局中可能不是必需的 */
+        }
+
+        th, td {
+            padding: 10px;
+        }
+
+        /* 你可以为body添加一些样式来确保它占据整个屏幕 */
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* 注意：如果只需要表格水平居中，下面的样式可以简化或省略 */
+        }
+
+        /* 额外的样式，如果需要的话 */
+    </style>
+</head>
+<body>
+
+<!-- Modal 组件 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">弹窗消息</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 这里可以放置弹窗的内容 -->
+                <p>这是一个弹窗消息！</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">
+    <h2>People Table</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>City</th>
+            <th>Action</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.age }}</td>
+            <td>{{ item.home }}</td>
+            <td>
+                <!-- 假设这里有一个按钮用于触发弹窗 -->
+                <button type="button" class="btn btn-primary" onclick="showModal('{{ item.name }}')">查看详情</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<!-- 引入 Bootstrap JS 和 Popper.js（Bootstrap 的依赖） -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    // JavaScript 函数来显示 Modal
+    function showModal(name) {
+        // 你可以在这里根据 name 变量来更新 Modal 的内容（如果需要的话）
+        // 例如：$('#myModalBody').text('查看 ' + name + ' 的详情');
+        // 但在这个简单的例子中，我们直接显示 Modal
+        $('#myModal').modal('show');
+    }
+</script>
+
+</body>
+</html>
