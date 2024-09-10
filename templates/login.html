@@ -6,14 +6,22 @@
     <title>Login</title>
 </head>
 <body>
-    <h2>Login</h2>
-    <form action="{{ url_for('login') }}" method="post">
-        <label for="username">Username:</label>
+
+
+<div style="text-align: center;">
+    <h1>登录</h1>
+    1:收费人员 2:医生 3:检验科室人员 4:药房人员 5:系统超级用户
+  <form action="{{ url_for('login') }}" method="post">
+        <label for="username">用户名:</label>
         <input type="text" id="username" name="username" required>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <input type="submit" value="Login">
+        <label for="password">密码:</label>
+        <input type="text" id="password" name="password" required>
+        <label for="Kind">职务:</label>
+        <input type="text" id="Kind" name="Kind" required>
+        <input type="submit" value="点击登录">
     </form>
+</div>
+
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
