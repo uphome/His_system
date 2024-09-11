@@ -4,24 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+    <style>
+        /* 可选的CSS样式 */
+        .flash-messages {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .flash-messages li {
+            padding: 10px;
+            background-color: #f2dede;
+            color: #a94442;
+            margin-bottom: 5px;
+            border: 1px solid #ebccd1;
+            border-radius: 4px;
+        }
+    </style>
+    <!-- 引入jQuery库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 设置定时器，在5秒后自动隐藏flash消息
+            setTimeout(function() {
+                $('.flash-messages').fadeOut(300); // 500毫秒内淡出
+            }, 1000); // 5秒后执行
+        });
+    </script>
 </head>
 <body>
 
-
 <div style="text-align: center;">
     <h1>登录</h1>
-    1:收费人员 2:医生 3:检验科室人员 4:药房人员 5:系统超级用户
-  <form action="{{ url_for('login') }}" method="post">
+    <p>1:收费人员 2:医生 3:检验科室人员 4:药房人员 5:系统超级用户</p>
+    <form action="{{ url_for('login') }}" method="post">
         <label for="username">用户名:</label>
         <input type="text" id="username" name="username" required>
         <label for="password">密码:</label>
-        <input type="text" id="password" name="password" required>
+        <input type="password" id="password" name="password" required>
         <label for="Kind">职务:</label>
         <input type="text" id="Kind" name="Kind" required>
-        <input type="submit" value="点击登录">
+        <input type="submit" value="点击登录" name ="signin">
+        <input type="submit" value="点击注册" name ="signup">
     </form>
 </div>
 
+<!-- 修改flash消息的HTML结构，添加flash-messages类 -->
+<div class="flash-messages">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
@@ -31,5 +60,7 @@
             </ul>
         {% endif %}
     {% endwith %}
+</div>
+
 </body>
 </html>
