@@ -55,7 +55,6 @@ def Adduser(Username, Password, Kind):
     try:
         cursor = conn.cursor()
         sql = 'INSERT INTO dbo.loginuser (Username, Password, Kind) VALUES (?, ?, ?)'
-        print(sql)
         cursor.execute(sql,(Username, Password, Kind))
         print('注册数据成功写入!')
         conn.commit()

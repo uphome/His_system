@@ -9,7 +9,6 @@ app.config['SECRET_KEY'] = secret_key
 app.register_blueprint(toll_bp)
 
 
-
 # ... 其他代码将在这里添加
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -27,8 +26,6 @@ def login():
                     for index1 in Uer[index].keys():
                         if index1 == username and Uer[index][index1] == password:
                             cort = 0;
-
-                            # TODO 不同的kind对应着不同的界面
                             if int(Kind) == 1:
                                 return redirect(url_for('toll_bp.Toll'))
                             if int(Kind) == 2:
@@ -47,13 +44,16 @@ def login():
             Kind = request.form['Kind']
 
             if username != '' and password != '' and int(Kind) != '' and 5 >= int(Kind) >= 1:
-                if UserSet.Adduser(username,password,Kind):
+                if UserSet.Adduser(username, password, Kind):
                     flash("成功注册")
                 else:
                     flash("注册失败")
 
 
-            else:flash("请按照格式进行注册！")
+            else:
+                flash("请按照格式进行注册！")
 
     return render_template('login.html')
+
+
 app.run(debug=True)
