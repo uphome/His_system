@@ -15,7 +15,6 @@ def login():
     if request.method == 'POST':
         if 'signin' in request.form:
             Uer = UserSet.Getuser();
-            print(Uer)
             username = request.form['username']
             password = request.form['password']
             Kind = request.form['Kind']

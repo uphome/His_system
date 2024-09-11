@@ -1,109 +1,94 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Flask Table and Modal Example</title>
-    <!-- 引入 Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Login</title>
     <style>
-        /* 你的样式代码，如果需要的话 */
-       .table-container {
-            width: 100%; /* 或者设置为你希望的最大宽度 */
-            margin: 0 auto; /* 水平和垂直居中（但垂直居中需要其他方法，这里只处理水平居中） */
-            display: flex; /* 使用Flexbox来更好地控制居中 */
-            justify-content: center; /* 水平居中 */
-            align-items: center; /* 垂直居中（但在这个例子中可能不需要，因为body已经占据了整个屏幕高度） */
-            flex-direction: column; /* 确保内容在垂直方向上堆叠 */
-            height: 100vh; /* 使容器高度占满整个视口 */
+        /* 可选的CSS样式 */
+        .flash-messages {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+            text-align: center;
         }
-
-        table, th, td {
+        .flash-messages li {
+            padding: 10px;
+            background-color: #f2dede;
+            color: #a94442;
+            margin-bottom: 5px;
+            border: 1px solid #ebccd1;
+            border-radius: 4px;
+        }
+            table, th, td {
             border: 1px solid black;
             border-collapse: collapse;
-            margin: 0 auto; /* 表格自身也尝试居中，但在这个布局中可能不是必需的 */
         }
-
         th, td {
             padding: 10px;
         }
-
-        /* 你可以为body添加一些样式来确保它占据整个屏幕 */
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* 注意：如果只需要表格水平居中，下面的样式可以简化或省略 */
-        }
-
-        /* 额外的样式，如果需要的话 */
     </style>
+    <!-- 引入jQuery库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 设置定时器，在5秒后自动隐藏flash消息
+            setTimeout(function() {
+                $('.flash-messages').fadeOut(300); // 500毫秒内淡出
+            }, 1000); // 5秒后执行
+        });
+    </script>
 </head>
 <body>
-
-<!-- Modal 组件 -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="myModalLabel">弹窗消息</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- 这里可以放置弹窗的内容 -->
-                <p>这是一个弹窗消息！</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="table-container">
-    <h2>People Table</h2>
+<div style="text-align: center;">
+    <h1>挂号</h1>
+    <form action="{{ url_for('toll_bp.Toll') }}" method="post">
+        <label for="username">姓名:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="gender">性别:</label>
+        <select id="gender" name="gender" required>
+            <option value="male">男</option>
+            <option value="female">女</option>
+        </select>
+        <label for="age">年龄:</label>
+        <input type="text" id="age" name="age" required>
+        <label for="DoctorID">主治医生ID:</label>
+        <input type="text" id="DoctorID" name="DoctorID" required>
+        <input type="submit" value="挂号" name="Setorder">
+    </form>
+     <h1>Patient Information</h1>
     <table>
         <tr>
+            <th>ID</th>
             <th>Name</th>
+            <th>Gender</th>
             <th>Age</th>
-            <th>City</th>
-            <th>Action</th>
+            <th>DoctorId</th>
+            <th>Current Time</th>
         </tr>
         {% for item in data %}
         <tr>
-            <td>{{ item.name }}</td>
-            <td>{{ item.age }}</td>
-            <td>{{ item.home }}</td>
-            <td>
-                <!-- 假设这里有一个按钮用于触发弹窗 -->
-                <button type="button" class="btn btn-primary" onclick="showModal('{{ item.name }}')">查看详情</button>
-            </td>
+            <td>{{ item.ID }}</td>
+            <td>{{ item.Name }}</td>
+            <td>{{ item.Gender }}</td>
+            <td>{{ item.Age }}</td>
+            <td>{{ item.DoctorId }}</td>
+            <td>{{ item.current_time }}</td>
         </tr>
         {% endfor %}
     </table>
 </div>
-
-<!-- 引入 Bootstrap JS 和 Popper.js（Bootstrap 的依赖） -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<script>
-    // JavaScript 函数来显示 Modal
-    function showModal(name) {
-        // 你可以在这里根据 name 变量来更新 Modal 的内容（如果需要的话）
-        // 例如：$('#myModalBody').text('查看 ' + name + ' 的详情');
-        // 但在这个简单的例子中，我们直接显示 Modal
-        $('#myModal').modal('show');
-    }
-</script>
+<!-- 修改flash消息的HTML结构，添加flash-messages类 -->
+<div class="flash-messages">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</div>
 
 </body>
 </html>
