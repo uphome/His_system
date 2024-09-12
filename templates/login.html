@@ -42,10 +42,16 @@
         <input type="text" id="username" name="username" required>
         <label for="password">密码:</label>
         <input type="password" id="password" name="password" required>
-        <label for="Kind">职务:</label>
-        <input type="text" id="Kind" name="Kind" required>
-        <input type="submit" value="点击登录" name ="signin">
-        <input type="submit" value="点击注册" name ="signup">
+        <select id="Kind" name="Kind" required>
+            <option value="0">收费人员</option>
+            <option value="1">医生</option>
+            <option value="2">检验科室人员</option>
+            <option value="3">药房人员</option>
+            <option value="4">系统超级用户</option>
+        </select>
+
+        <input type="submit" value="登录" name ="signin">
+        <input type="submit" value="注册" name ="signup">
     </form>
 </div>
 

@@ -22,7 +22,7 @@ def Getuser():
         # 获取所有记录
         rows = cursor.fetchall()
         # 数据预处理
-        login_dic = {'1':{},'2':{},'3':{},'4':{},'5':{}};
+        login_dic = {'0':{},'1':{},'2':{},'3':{},'4':{}};
         for row in rows:
            login_dic[row[2].strip()][row[0].strip()] = row[1].strip()
         # 1:收费人员 2:医生 3:检验科室人员 4:药房人员 5:系统超级用户

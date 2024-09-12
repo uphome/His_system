@@ -18,25 +18,17 @@ def login():
             username = request.form['username']
             password = request.form['password']
             Kind = request.form['Kind']
-            cort = 1;
+            print(Kind)
 
             for index in Uer.keys():
                 if Kind == index:
                     for index1 in Uer[index].keys():
                         if index1 == username and Uer[index][index1] == password:
-                            cort = 0;
-                            if int(Kind) == 1:
-                                return redirect(url_for('toll_bp.Toll'))
-                            if int(Kind) == 2:
-                                return redirect(url_for('toll_bp.Doctor'))
-                            if int(Kind) == 3:
-                                return redirect(url_for('toll_bp.Inspection'))
-                            if int(Kind) == 4:
-                                return redirect(url_for('toll_bp.Pharmacy'))
-                            if int(Kind) == 5:
-                                return redirect(url_for('toll_bp.superuser'))
-            if cort:
-                flash("账户或密码错误 请重新输入")
+                            url_array=['toll_bp.Toll','toll_bp.Doctor','toll_bp.Inspection','toll_bp.Pharmacy','toll_bp.superuser']
+                            return redirect(url_for(url_array[int(Kind)]))
+
+
+            flash("账户或密码错误 请重新输入")
         if 'signup' in request.form:
             username = request.form['username']
             password = request.form['password']

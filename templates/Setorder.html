@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        .flash-messages li {
+            padding: 10px;
+            background-color: #f2dede;
+            color: #a94442;
+            margin-bottom: 5px;
+            border: 1px solid #ebccd1;
+            border-radius: 4px;
+        }
+            body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: block; /* 或者不使用display属性，因为body默认就是block */
+        }
+
+        .container {
+            width: 100%; /* 容器宽度 */
+            text-align: center; /* 文本（在这个例子中用于子元素表格）居中 */
+            padding-top: 50px; /* 根据需要调整顶部内边距来移动表格 */
+        }
+
+        table {
+            width: 80%; /* 表格宽度 */
+            margin: 0 auto; /* 上下边距为0，左右自动调整实现水平居中 */
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+    </style>
+    <!-- 引入jQuery库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 设置定时器，在5秒后自动隐藏flash消息
+            setTimeout(function() {
+                $('.flash-messages').fadeOut(300); // 500毫秒内淡出
+            }, 1000); // 5秒后执行
+        });
+    </script>
+</head>
+<body>
+<div style="text-align: center;">
+    <h1>挂号</h1>
+    <form action="{{ url_for('toll_bp.Toll') }}" method="post">
+        <label for="username">姓名:</label>
+        <input id="username" name="username" required type="text">
+        <label for="gender">性别:</label>
+        <select id="gender" name="gender" required>
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select>
+        <label for="age">年龄:</label>
+        <input id="age" name="age" required type="text">
+        <label for="DoctorID">主治医生ID:</label>
+        <input id="DoctorID" name="DoctorID" required type="text">
+        <input name="Setorder" type="submit" value="挂号">
+    </form>
+        <h1>挂号排队序列</h1>
+        <table>
+            <tr>
+                <th>号码</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>年龄</th>
+                <th>医生号</th>
+                <th>挂号时间</th>
+            </tr>
+            {% for item in data %}
+            <tr>
+                <td>{{ item.ID }}</td>
+                <td>{{ item.Name }}</td>
+                <td>{{ item.Gender }}</td>
+                <td>{{ item.Age }}</td>
+                <td>{{ item.DoctorId }}</td>
+                <td>{{ item.current_time }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+</div>
+<!-- 修改flash消息的HTML结构，添加flash-messages类 -->
+<div class="flash-messages">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>
