@@ -1,5 +1,10 @@
+import io
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
+
+
+from flask import Flask, render_template, request, redirect, url_for, flash, Response
+
+import Captcha_get
 import UserSet
 from Toll import toll_bp
 
@@ -46,5 +51,13 @@ def login():
 
     return render_template('login.html')
 
+@app.route('/captcha',methods=['GET'])
+#TODO:验证验证码是否正确
+def show_image():
+     img,text=Captcha_get.generate_captcha()
+     img_byte_arr = io.BytesIO()
+     img.save(img_byte_arr, format='PNG')
+     img_byte_arr = img_byte_arr.getvalue()
+     return Response(img_byte_arr, mimetype='image/png')
 
 app.run(debug=True)

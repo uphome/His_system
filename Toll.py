@@ -3,6 +3,7 @@ import random
 import time
 import TollData
 from datetime import datetime
+
 # 创建一个蓝图对象
 toll_bp = Blueprint('toll_bp', __name__)
 
@@ -47,4 +48,5 @@ def Pharmacy():
 @toll_bp.route('/superuser')
 def superuser():
     return 'System superuser!'
+
 
