@@ -68,4 +68,3 @@ def Adduser(Username, Password, Kind):
         conn.close()
         return 1
 
-print(Getuser())

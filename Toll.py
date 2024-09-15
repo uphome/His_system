@@ -1,6 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+import io
+
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, Response
 import random
 import time
+
+import Captcha_get
 import TollData
 from datetime import datetime
 
@@ -16,7 +20,6 @@ def Toll():
             random.seed(time.time())
             ID=random.randint(1000000, 9999999)
             Gender=request.form['gender']
-            print(Gender)
             Age=request.form['age']
             DoctorID=request.form['DoctorID']
             if TollData.AddToll(ID,Name,Gender,Age,DoctorID):
@@ -24,8 +27,6 @@ def Toll():
             else:
                 flash("挂号失败！")
             data=TollData.GetToll();
-
-            print(data)
             return render_template('Setorder.html', data=data)
     return render_template('Setorder.html')
 
@@ -49,4 +50,11 @@ def Pharmacy():
 def superuser():
     return 'System superuser!'
 
+@toll_bp.route('/captcha', methods=['GET'])
 
+def show_image():
+    img, session['captcha_text'] = Captcha_get.generate_captcha()
+    img_byte_arr = io.BytesIO()
+    img.save(img_byte_arr, format='PNG')
+    img_byte_arr = img_byte_arr.getvalue()
+    return Response(img_byte_arr, mimetype='image/png')
