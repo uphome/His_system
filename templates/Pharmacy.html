@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        .flash-messages li {
+            padding: 10px;
+            background-color: #f2dede;
+            color: #a94442;
+            margin-bottom: 5px;
+            border: 1px solid #ebccd1;
+            border-radius: 4px;
+        }
+            body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: block; /* 或者不使用display属性，因为body默认就是block */
+        }
+
+        .container {
+            width: 100%; /* 容器宽度 */
+            text-align: center; /* 文本（在这个例子中用于子元素表格）居中 */
+            padding-top: 50px; /* 根据需要调整顶部内边距来移动表格 */
+        }
+
+        table {
+            width: 80%; /* 表格宽度 */
+            margin: 0 auto; /* 上下边距为0，左右自动调整实现水平居中 */
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+    </style>
+    <!-- 引入jQuery库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 设置定时器，在5秒后自动隐藏flash消息
+            setTimeout(function() {
+                $('.flash-messages').fadeOut(300); // 500毫秒内淡出
+            }, 1000); // 5秒后执行
+        });
+    </script>
+</head>
+<body>
+<div style="text-align: center;">
+    <h1>库存</h1>
+    <form action="{{ url_for('All_bp.Pharmacy') }}" method="post">
+
+        <table>
+            <tr>
+                <th>药品ID</th>
+                <th>药品名</th>
+                <th>价格</th>
+                <th>库存量</th>
+            </tr>
+            {% for item in data %}
+            <tr>
+                <td>{{ item.MedicineID }}</td>
+                <td>{{ item.MedicineName }}</td>
+                <td>{{ item.Price }}</td>
+                <td>{{ item.Number }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+         <p><p><label for="MedicineID">药品ID:</label>
+        <input id="MedicineID" name="MedicineID" required type="text">
+         <label for="MedicineName">药品名:</label>
+        <input id="MedicineName" name="MedicineName" required type="text">
+         <label for="Number">库存量\盒:</label>
+        <input id="Number" name="Number" required type="text">
+        <label for="Price">单价\元:</label>
+        <input id="Price" name="Price" required type="text">
+        <input name="Medicinealter" type="submit" value="提交修改">
+<p><p>
+</form>
+</div>
+<!-- 修改flash消息的HTML结构，添加flash-messages类 -->
+<div class="flash-messages">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</div>
+
+</body>
+</html>

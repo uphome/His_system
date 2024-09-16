@@ -1,16 +1,14 @@
 import io
 import os
-
-
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, session, send_from_directory
-
 import UserSet
-from Toll import All_bp
+from All_bp import All_bp
 
 app = Flask(__name__)
 secret_key = os.urandom(24).hex()
 app.config['SECRET_KEY'] = secret_key
 app.register_blueprint(All_bp)
+#TODO 整体代码结构要调整
 #TODO 添加装饰器 用来判断用户是否有权限进入该网页
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -31,20 +29,20 @@ def login():
 
             flash("输入信息错误 请重新输入")
 
-        # if 'signup' in request.form:
-        #     username = request.form['username']
-        #     password = request.form['password']
-        #     Kind = request.form['Kind']
-        #
-        #     if username != '' and password != '' and int(Kind) != '' and 5 >= int(Kind) >= 1:
-        #         if UserSet.Adduser(username, password, Kind):
-        #             flash("成功注册")
-        #         else:
-        #             flash("注册失败")
-        #
-        #
-        #     else:
-        #         flash("请按照格式进行注册！")
+        if 'signup' in request.form:
+            username = request.form['username']
+            password = request.form['password']
+            Kind = request.form['Kind']
+
+            if username != '' and password != '' and int(Kind) != '' and 5 >= int(Kind) >= 1:
+                if UserSet.Adduser(username, password, Kind):
+                    flash("成功注册")
+                else:
+                    flash("注册失败")
+
+
+            else:
+                flash("请按照格式进行注册！")
     if request.method == 'GET':
         return render_template('login.html')
     return render_template('login.html')
@@ -56,7 +54,7 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-app.run(host='0.0.0.0',port=5001)
+
 #TODO 用局域网其他设备都可以访问
 #app.run(host='10.150.163.75', port=5001)
 

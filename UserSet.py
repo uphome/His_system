@@ -4,13 +4,13 @@ import pyodbc
 def Getuser():
     conn_str = (
         r'DRIVER={ODBC Driver 17 for SQL Server};'
-        r'SERVER=localhost;'  
+        r'SERVER=localhost;'
         r'DATABASE=His_info;'
         r'Trusted_Connection=yes;'
     )
     # 创建连接
     conn = pyodbc.connect(conn_str)
-    if (conn):
+    if conn:
         print("链接成功!")
     else:
         print("链接失败!")
@@ -22,9 +22,9 @@ def Getuser():
         # 获取所有记录
         rows = cursor.fetchall()
         # 数据预处理
-        login_dic = {'0':{},'1':{},'2':{},'3':{},'4':{}};
+        login_dic = {'0': {}, '1': {}, '2': {}, '3': {}, '4': {}}
         for row in rows:
-           login_dic[row[2].strip()][row[0].strip()] = row[1].strip()
+            login_dic[row[2].strip()][row[0].strip()] = row[1].strip()
         # 1:收费人员 2:医生 3:检验科室人员 4:药房人员 5:系统超级用户
     except pyodbc.Error as e:
         print(f"数据库操作失败: {e}")
@@ -46,7 +46,7 @@ def Adduser(Username, Password, Kind):
     )
     # 创建连接
     conn = pyodbc.connect(conn_str)
-    if (conn):
+    if conn:
         print("链接成功！")
     else:
         print("链接失败！")
@@ -55,7 +55,7 @@ def Adduser(Username, Password, Kind):
     try:
         cursor = conn.cursor()
         sql = 'INSERT INTO dbo.loginuser (Username, Password, Kind) VALUES (?, ?, ?)'
-        cursor.execute(sql,(Username, Password, Kind))
+        cursor.execute(sql, (Username, Password, Kind))
         print('注册数据成功写入!')
         conn.commit()
     except pyodbc.Error as e:
@@ -67,4 +67,3 @@ def Adduser(Username, Password, Kind):
         cursor.close()
         conn.close()
         return 1
-
