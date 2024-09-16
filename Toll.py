@@ -9,49 +9,49 @@ import TollData
 from datetime import datetime
 
 # 创建一个蓝图对象
-toll_bp = Blueprint('toll_bp', __name__)
+All_bp = Blueprint('All_bp', __name__)
 
 
-@toll_bp.route('/Toll',methods=['GET', 'POST'])
+@All_bp.route('/Toll', methods=['GET', 'POST'])
 def Toll():
     if request.method == 'POST':
         if 'Setorder' in request.form:
-            Name=request.form['username']
+            Name = request.form['username']
             random.seed(time.time())
-            ID=random.randint(1000000, 9999999)
-            Gender=request.form['gender']
-            Age=request.form['age']
-            DoctorID=request.form['DoctorID']
-            if TollData.AddToll(ID,Name,Gender,Age,DoctorID):
+            ID = random.randint(1000000, 9999999)
+            Gender = request.form['gender']
+            Age = request.form['age']
+            DoctorID = request.form['DoctorID']
+            if TollData.AddToll(ID, Name, Gender, Age, DoctorID):
                 flash("挂号成功！")
             else:
                 flash("挂号失败！")
-            data=TollData.GetToll();
+            data = TollData.GetToll();
             return render_template('Setorder.html', data=data)
     return render_template('Setorder.html')
 
 
-@toll_bp.route('/Doctor')
+@All_bp.route('/Doctor')
 def Doctor():
     return 'Doctor!'
 
 
-@toll_bp.route('/Inspection')
+@All_bp.route('/Inspection')
 def Inspection():
     return 'Inspection!'
 
 
-@toll_bp.route('/Pharmacy')
+@All_bp.route('/Pharmacy')
 def Pharmacy():
     return 'Pharmacy!'
 
 
-@toll_bp.route('/superuser')
+@All_bp.route('/superuser')
 def superuser():
     return 'System superuser!'
 
-@toll_bp.route('/captcha', methods=['GET'])
 
+@All_bp.route('/captcha', methods=['GET'])
 def show_image():
     img, session['captcha_text'] = Captcha_get.generate_captcha()
     img_byte_arr = io.BytesIO()

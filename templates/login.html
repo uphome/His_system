@@ -49,7 +49,7 @@
             <option value="3">药房人员</option>
             <option value="4">系统超级用户</option>
         </select></p>
-        <p>验证码: <img src="{{ url_for('toll_bp.show_image') }}" alt="验证码"id="captcha-image"></p>
+        <p>验证码: <img src="{{ url_for('All_bp.show_image') }}" alt="验证码"id="captcha-image"></p>
         <p><label for="captcha">输入:</label>
         <input type="text" id="captcha" name="captcha" required></p>
         <p><input type="submit" value="登录" name="signin"></p>
@@ -62,7 +62,7 @@
         // 生成一个时间戳作为查询字符串，避免浏览器缓存
         var timestamp = new Date().getTime();
         // 修改图片的src属性，加上查询字符串
-        this.src = "{{ url_for('toll_bp.show_image') }}?" + timestamp;
+        this.src = "{{ url_for('All_bp.show_image') }}?" + timestamp;
     });
 </script>
 
