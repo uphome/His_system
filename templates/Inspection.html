@@ -5,6 +5,18 @@
     <title>Login</title>
     <style>
         /* 可选的CSS样式 */
+        table {
+            width: 600px; /* 设置一个固定的宽度 */
+            margin: 20px auto; /* 上下外边距为20px，左右外边距自动，以实现居中 */
+            border-collapse: collapse; /* 边框合并为一个单一的边框 */
+        }
+
+        /* 表格头部和单元格的样式 */
+        th, td {
+            text-align: center; /* 文本居中 */
+            padding: 8px; /* 单元格内边距 */
+            border: 1px solid #ddd; /* 单元格边框 */
+        }
         .flash-messages {
             list-style-type: none;
             padding: 0;
@@ -41,28 +53,26 @@
 <body>
 <div style="text-align: center;">
     <h1>检验结果</h1>
-    <form action="{{ url_for('All_bp.Toll') }}" method="post">
-                <table>
-            <tr>
-                <th>姓名</th>
-                <th>检验项目</th>
-                <th>申请时间</th>
-                <th>检验结果</th>
-            </tr>
-            {% for item in data %}
-            <tr>
-                <td>{{ item.MedicineID }}</td>
-                <td>{{ item.MedicineName }}</td>
-                <td>{{ item.Price }}</td>
-                <td><input type="text" id="username" name="username" required><td>
-            </tr>
-            {% endfor %}
-        </table>
-
-
-
-
-        <input type="submit" value="挂号" name="Setorder">
+    <form action="{{ url_for('All_bp.Inspection') }}" method="post">
+    <table>
+        <tr>
+            <th>姓名</th>
+            <th>检验项目</th>
+            <th>申请时间</th>
+            <th>检验结果</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td>{{ item.Name }}</td>
+            <td>{{ item.Program }}</td>
+            <td>{{ item.Time }}</td>
+            <td><input type="text" name="results[]" required></td> <!-- 注意这里的name属性 -->
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="4" align="center"><input type="submit" value="提交" name="Setorder"></td>
+        </tr>
+    </table>
     </form>
      <h1>Patient Information</h1>
 

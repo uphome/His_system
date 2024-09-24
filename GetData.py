@@ -36,7 +36,6 @@ def Getdata(Dataname, Kindname):
         # 关闭Cursor和连接
         cursor.close()
         conn.close()
-        print(data)
         return data
 
 
@@ -51,9 +50,8 @@ def Adddata(Dataname, Kindname, AddData):
     )
     # 创建连接
     conn = pyodbc.connect(conn_str)
-    if (conn != 1):
-        print("链接失败!")
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if (conn == 1):
+        print("链接成功!")
     try:
         cursor = conn.cursor()
         sql1 = sql2 =sql3= ''
@@ -66,11 +64,8 @@ def Adddata(Dataname, Kindname, AddData):
         sql2 = sql2 + '?'
         sql3 = sql3 + '\''+AddData[-1] +'\''
         sql = ('INSERT INTO dbo.' + Dataname + ' (' + sql1 + ') VALUES (' + sql2 + ')')
-        str = ('MERGE INTO dbo.'+ Dataname + ' AS target USING (VALUES (' + sql3 + ')) AS source (MedicineID, MedicineName, Price, Number) ON target.MedicineID = source.MedicineID WHEN MATCHED THEN  '
-               'UPDATE SET MedicineName = source.MedicineName, Price = source.Price, Number = source.Number  WHEN NOT MATCHED THEN '
-               'INSERT (MedicineID, MedicineName, Price, Number) VALUES (source.MedicineID, source.MedicineName, source.Price, source.Number);')
-        print(str)
-        cursor.execute(str)
+        print(sql3)
+        cursor.execute(sql,AddData)
         print('挂号数据成功写入!')
         conn.commit()
     except pyodbc.Error as e:

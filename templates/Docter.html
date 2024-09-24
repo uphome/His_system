@@ -40,31 +40,29 @@
 </head>
 <body>
 <div style="text-align: center;">
-    <h1>检验结果</h1>
-    <form action="{{ url_for('All_bp.Toll') }}" method="post">
-                <table>
-            <tr>
-                <th>姓名</th>
-                <th>检验项目</th>
-                <th>申请时间</th>
-                <th>检验结果</th>
-            </tr>
-            {% for item in data %}
-            <tr>
-                <td>{{ item.MedicineID }}</td>
-                <td>{{ item.MedicineName }}</td>
-                <td>{{ item.Price }}</td>
-                <td><input type="text" id="username" name="username" required><td>
-            </tr>
-            {% endfor %}
-        </table>
-
-
-
-
-        <input type="submit" value="挂号" name="Setorder">
+    <h1>检验申请</h1>
+    <form action="{{ url_for('All_bp.Doctor') }}" method='post'>
+        <label for="username">姓名:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="sex">性别:</label>
+         <select id="sex" name="sex" required>
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select>
+        <label for="Program">检验项目:</label>
+        <select id="Program" name="Program" required>
+            <option value="核磁共振">核磁共振</option>
+            <option value="X光">X光</option>
+            <option value="粪便检验">粪检</option>
+            <option value="血常规">血常规</option>
+            <option value="血生化">血生化</option>
+            <option value="凝血功能检查">凝血检</option>
+            <option value="尿液检验">尿检</option>
+            <option value="粪便检验">粪检</option>
+        </select>
+        <input type="submit" value="申请" name="Postorder">
     </form>
-     <h1>Patient Information</h1>
+     <h1>检验结果</h1>
 
 </div>
 <!-- 修改flash消息的HTML结构，添加flash-messages类 -->

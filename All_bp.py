@@ -1,4 +1,5 @@
 import io
+from datetime import datetime
 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, Response
 import random
@@ -6,6 +7,7 @@ import time
 
 import Captcha_get
 import GetData
+import Inspection_data
 import MedicineData
 import TollData
 
@@ -38,31 +40,64 @@ def Toll():
     return render_template('Setorder.html')
 
 
-@All_bp.route('/Doctor')
+@All_bp.route('/Doctor', methods=['GET', 'POST'])
 def Doctor():
-    return 'Doctor!'
+    #TODO 对病历的修改以及写入
+    if request.method == 'GET':
+        return render_template('Docter.html')
+    if request.method == 'POST':
+        if 'Postorder' in request.form:
+            name = request.form['username']
+            sex = request.form['sex']
+            time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            program = request.form['Program']
+            GetData.Adddata('Program', ['Name', 'Sex', 'Time', 'Program'], [name, sex, time, program])
+
+        return render_template('Docter.html')
 
 
-@All_bp.route('/Inspection')
+@All_bp.route('/Inspection', methods=['GET', 'POST'])
 def Inspection():
-    return 'Inspection!'
+    data = []
+    for row in GetData.Getdata('Program', ['Name', 'Sex', 'Time', 'Program', 'Result']):
+        if row['Result'] is None:
+            data.append(row)
+    if request.method=='GET':
+        return render_template('Inspection.html', data=data)
+    if request.method=='POST':
+        if 'Setorder' in request.form:
+            add_Data = {}
+            result = request.form.getlist('results[]')
+            if len(result)== 0:
+                return render_template('Inspection.html')
+            print(result)
+            for i in range(0, len(result)):
+                index = str(data[i]['Time'])
+                add_Data[index] = result[i]
+            if len(add_Data):
+                Inspection_data.Add_inspection('Program', add_Data)
+                data=[]
+                for row in GetData.Getdata('Program', ['Name', 'Sex', 'Time', 'Program', 'Result']):
+                    if row['Result'] is None:
+                        data.append(row)
+                return render_template('Inspection.html',data=data)
+    return render_template('Inspection.html', data=data)
 
 
 @All_bp.route('/Pharmacy', methods=['GET', 'POST'])
 def Pharmacy():
     if request.method == 'POST':
-        if 'Medicinealter' in request.form: #修改库存
-            #Kindname = ['MedicineID', 'MedicineName', 'Price', 'Number']
-            medicineName=request.form['MedicineName']
+        if 'Medicinealter' in request.form:  # 修改库存
+            # Kindname = ['MedicineID', 'MedicineName', 'Price', 'Number']
+            medicineName = request.form['MedicineName']
             medicineID = request.form['MedicineID']
-            #TODO ID自动生成
             medicinePrice = str(request.form['Price'])
             medicineNumber = request.form['Number']
-            addData=[medicineID,medicineName,medicinePrice,medicineNumber]
+            addData = [medicineID, medicineName, medicinePrice, medicineNumber]
             MedicineData.Alter_medicine(addData)
             data = MedicineData.Get_medicine()
             return render_template('Pharmacy.html', data=data)
-    if request.method == 'GET': #显示库存
+    if request.method == 'GET':  # 显示库存
         data = MedicineData.Get_medicine()
         return render_template('Pharmacy.html', data=data)
     return render_template('Pharmacy.html')
