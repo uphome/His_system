@@ -21,9 +21,8 @@ def Alter_medicine(AddData): #特殊函数
     )
     # 创建连接
     conn = pyodbc.connect(conn_str)
-    if (conn != 1):
+    if conn != 1:
         print("链接失败!")
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     try:
         cursor = conn.cursor()
         sql1 = sql2 = sql3 = ''
@@ -36,25 +35,7 @@ def Alter_medicine(AddData): #特殊函数
         sql2 = sql2 + '?'
         sql3 = sql3 + '\'' + AddData[-1] + '\''
         sql = ('INSERT INTO dbo.' + Dataname + ' (' + sql1 + ') VALUES (' + sql2 + ')')
-        str = (
-                    'MERGE INTO dbo.' + Dataname + ' AS target USING (VALUES (' + sql3 + ')) AS source (MedicineID, '
-                                                                                         'MedicineName, Price, '
-                                                                                         'Number) ON '
-                                                                                         'target.MedicineID = '
-                                                                                         'source.MedicineID WHEN '
-                                                                                         'MATCHED THEN'
-                                                                                         'UPDATE SET MedicineName = '
-                                                                                         'source.MedicineName, '
-                                                                                         'Price = source.Price, '
-                                                                                         'Number = source.Number  '
-                                                                                         'WHEN NOT MATCHED THEN'
-                                                                                         'INSERT (MedicineID, '
-                                                                                         'MedicineName, Price, '
-                                                                                         'Number) VALUES ('
-                                                                                         'source.MedicineID, '
-                                                                                         'source.MedicineName, '
-                                                                                         'source.Price, '
-                                                                                         'source.Number);')
+        str = ('MERGE INTO dbo.' + Dataname + ' AS target USING (VALUES (' + sql3 + ')) AS source (MedicineID, MedicineName, Price, Number) ON target.MedicineID = source.MedicineID WHEN MATCHED THEN UPDATE SET MedicineName = source.MedicineName, Price = source.Price, Number = source.Number WHEN NOT MATCHED THEN INSERT (MedicineID, MedicineName, Price, Number) VALUES (source.MedicineID, source.MedicineName, source.Price, source.Number);')
 
         cursor.execute(str)
         print('挂号数据成功写入!')

@@ -42,9 +42,11 @@ def Toll():
 
 @All_bp.route('/Doctor', methods=['GET', 'POST'])
 def Doctor():
-    #TODO 对病历的修改以及写入
+    #TODO: 这里 修改病历 的诊断 需要在前端的那里改，要像显示然后直接点进去可以进行修改，后端不用改。 诊断功能：添加、修改病人的诊断结果
+    datas = GetData.Getdata("Toll_order",['Id','name','gender','age','docterid','Datetime','text'])
+    datas = [Data for Data in datas if Data['text'] is None]
     if request.method == 'GET':
-        return render_template('Docter.html')
+        return render_template('Docter.html',data=datas)
     if request.method == 'POST':
         if 'Postorder' in request.form:
             name = request.form['username']
@@ -52,10 +54,20 @@ def Doctor():
             time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             program = request.form['Program']
             GetData.Adddata('Program', ['Name', 'Sex', 'Time', 'Program'], [name, sex, time, program])
-
-        return render_template('Docter.html')
-
-
+            return render_template('Docter.html',data=datas)
+        if 'putorder' in request.form:
+            result = request.form.getlist('results[]')
+            if len(result) == 0:
+                flash("输入为空！请重新输入")
+                return render_template('Docter.html',data=datas)
+            adddata = []
+            for i in range(0, len(result)):
+                datas[i]['text']=result[i]
+                adddata.append([result[i], str(datas[i]['Id'])])
+            if GetData.where_add("Toll_order",adddata) == 0:
+                print("无法保存数据！")
+            datas = [Data for Data in datas if Data['text'] is None]
+            return render_template('Docter.html', data=datas)
 @All_bp.route('/Inspection', methods=['GET', 'POST'])
 def Inspection():
     data = []
