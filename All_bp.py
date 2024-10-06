@@ -1,7 +1,7 @@
 import io
 from datetime import datetime
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session, Response
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, Response, jsonify
 import random
 import time
 
@@ -40,13 +40,26 @@ def Toll():
     return render_template('Setorder.html')
 
 
+@All_bp.route('/api/kinds', methods=['GET'])
+def get_kinds():
+    datas = GetData.Getdata('Medicine_info', ['id', 'medicname', 'price', 'number'])
+    options_datas = []
+    for data in datas:
+        options_data = {}
+        options_data["value"] = data["medicname"]
+        options_data["text"] = data["id"]
+        options_datas.append(options_data)
+    return jsonify(options_datas)
+
+
 @All_bp.route('/Doctor', methods=['GET', 'POST'])
 def Doctor():
-    #TODO: 这里 修改病历 的诊断 需要在前端的那里改，要像显示然后直接点进去可以进行修改，后端不用改。 诊断功能：添加、修改病人的诊断结果
-    datas = GetData.Getdata("Toll_order",['Id','name','gender','age','docterid','Datetime','text'])
+    # TODO: 这里 修改病历 的诊断 需要在前端的那里改，要像显示然后直接点进去可以进行修改，后端不用改。 诊断功能：添加、修改病人的诊断结果
+    # TODO: 这里医生需不需要看见检验结果
+    datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
     datas = [Data for Data in datas if Data['text'] is None]
     if request.method == 'GET':
-        return render_template('Docter.html',data=datas)
+        return render_template('Docter.html', data=datas)
     if request.method == 'POST':
         if 'Postorder' in request.form:
             name = request.form['username']
@@ -54,33 +67,44 @@ def Doctor():
             time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             program = request.form['Program']
             GetData.Adddata('Program', ['Name', 'Sex', 'Time', 'Program'], [name, sex, time, program])
-            return render_template('Docter.html',data=datas)
+            return render_template('Docter.html', data=datas)
         if 'putorder' in request.form:
             result = request.form.getlist('results[]')
             if len(result) == 0:
                 flash("输入为空！请重新输入")
-                return render_template('Docter.html',data=datas)
+                return render_template('Docter.html', data=datas)
             adddata = []
             for i in range(0, len(result)):
-                datas[i]['text']=result[i]
+                datas[i]['text'] = result[i]
                 adddata.append([result[i], str(datas[i]['Id'])])
-            if GetData.where_add("Toll_order",adddata) == 0:
+            if GetData.where_add("Toll_order", adddata) == 0:
                 print("无法保存数据！")
             datas = [Data for Data in datas if Data['text'] is None]
             return render_template('Docter.html', data=datas)
+
+
+@All_bp.route('/Doctor_prescription', methods=['GET', 'POST'])
+def Doctor_prescription():
+    print(request.method)
+    datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
+    datas = [Data for Data in datas if Data['text'] is not None]
+    print(datas)
+    return render_template('Docter.html', datas=datas)
+
+
 @All_bp.route('/Inspection', methods=['GET', 'POST'])
 def Inspection():
     data = []
     for row in GetData.Getdata('Program', ['Name', 'Sex', 'Time', 'Program', 'Result']):
         if row['Result'] is None:
             data.append(row)
-    if request.method=='GET':
+    if request.method == 'GET':
         return render_template('Inspection.html', data=data)
-    if request.method=='POST':
+    if request.method == 'POST':
         if 'Setorder' in request.form:
             add_Data = {}
             result = request.form.getlist('results[]')
-            if len(result)== 0:
+            if len(result) == 0:
                 return render_template('Inspection.html')
             print(result)
             for i in range(0, len(result)):
@@ -88,11 +112,11 @@ def Inspection():
                 add_Data[index] = result[i]
             if len(add_Data):
                 Inspection_data.Add_inspection('Program', add_Data)
-                data=[]
+                data = []
                 for row in GetData.Getdata('Program', ['Name', 'Sex', 'Time', 'Program', 'Result']):
                     if row['Result'] is None:
                         data.append(row)
-                return render_template('Inspection.html',data=data)
+                return render_template('Inspection.html', data=data)
     return render_template('Inspection.html', data=data)
 
 
