@@ -1,4 +1,5 @@
 import io
+import re
 from datetime import datetime
 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, Response, jsonify
@@ -11,7 +12,9 @@ import Inspection_data
 import MedicineData
 import TollData
 
-# 创建一个蓝图对象
+program_price = {'核磁共振': 200, 'X光': 100, '粪便检验': 200, '血常规': 100, '血生化': 200, '凝血功能检查': 300,
+                 '尿液检验': 350, '粪便检验': 400}
+
 All_bp = Blueprint('All_bp', __name__)
 
 
@@ -31,7 +34,6 @@ def Toll():
                 flash("挂号成功！")
             else:
                 flash("挂号失败！")
-            # data=GetData.Getdata('Toll_order',['ID', 'Name', 'Gender', 'Age', 'DoctorId','current_time'])
             data = TollData.GetToll()
             return render_template('Setorder.html', data=data)
     if request.method == 'GET':
@@ -40,33 +42,88 @@ def Toll():
     return render_template('Setorder.html')
 
 
-@All_bp.route('/api/kinds', methods=['GET'])
-def get_kinds():
-    datas = GetData.Getdata('Medicine_info', ['id', 'medicname', 'price', 'number'])
-    options_datas = []
-    for data in datas:
-        options_data = {}
-        options_data["value"] = data["medicname"]
-        options_data["text"] = data["id"]
-        options_datas.append(options_data)
-    return jsonify(options_datas)
-
+@All_bp.route('/Toll/price', methods=['GET', 'POST'])
+def toll_price():
+    datas_Toll = GetData.Getdata("Toll_order",
+                                 ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text', 'prescription',
+                                  'program'])
+    datas_Medicine = GetData.Getdata('Medicine_info', ['medicname', 'id', 'price', 'number'])
+    patients_tuples = []
+    for patient in datas_Toll:
+        for key in patient:
+            if key == 'Id' or key.isdigit():
+                patient_id = patient[key]
+                patient_name = patient['prescription']
+                patients_tuples.append((patient_id, patient_name))
+                break
+    program_tuples = []
+    for patient in datas_Toll:
+        for key in patient:
+            if key == 'Id' or key.isdigit():
+                patient_id = patient[key]
+                patient_name = patient['program']
+                program_tuples.append((patient_id, patient_name))
+                break
+    medicines_dict = {med['medicname']: int(med['price']) for med in datas_Medicine}
+    Price=[]
+    for i in range(0,len(program_tuples)):
+        total_proprice = 0
+        #TODO 这里的bug在于如果是空 会直接报错 没有验证下面这么写能不能跳过
+        if program_tuples is None:
+            flash('存在项目为空的状态')
+            break
+        stripped_string = program_tuples[i][1].strip('-')
+        project_names = stripped_string.split('-')
+        for program in project_names:
+            total_proprice+=(program_price.get(program)*1)
+        Price.append([datas_Toll[i]['Id'],datas_Toll[i]['name'],datas_Toll[i]['prescription'],datas_Toll[i]['program'],total_proprice])
+    for i in range(0,len(patients_tuples)):
+        pattern = r'([^*]+)\*(\d+)盒'
+        matches = re.findall(pattern, str(patients_tuples[i][1]))
+        medicines = []
+        total_mecprice = 0
+        for match in matches:
+            medicine_name = match[0]
+            quantity = int(match[1])
+            medicines.append((str(medicine_name), int(quantity)))
+        for record in medicines:
+            if record[0] in medicines_dict.keys():
+                total_mecprice += (medicines_dict.get(record[0]) * record[1])
+        Price[i][4]=int(total_mecprice)+Price[i][4]
+    converted_data = []
+    for item in Price:
+        converted_item = {
+            'Id': item[0],
+            'name': item[1],
+            'prescription': item[2],
+            'program': item[3],
+            'cost':item[4]
+        }
+        converted_data.append(converted_item)
+    print(Price)
+    return render_template('Setorder.html', data_price=converted_data)
 
 @All_bp.route('/Doctor', methods=['GET', 'POST'])
 def Doctor():
     # TODO: 这里 修改病历 的诊断 需要在前端的那里改，要像显示然后直接点进去可以进行修改，后端不用改。 诊断功能：添加、修改病人的诊断结果
     # TODO: 这里医生需不需要看见检验结果
-    datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
-    datas = [Data for Data in datas if Data['text'] is None]
+    all_datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
+    datas = [Data for Data in all_datas if Data['text'] is None]
     if request.method == 'GET':
         return render_template('Docter.html', data=datas)
     if request.method == 'POST':
         if 'Postorder' in request.form:
-            name = request.form['username']
-            sex = request.form['sex']
-            time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            program = request.form['Program']
-            GetData.Adddata('Program', ['Name', 'Sex', 'Time', 'Program'], [name, sex, time, program])
+            id = request.form['Kindid']
+            for data in all_datas:
+                if int(id) == int(data['Id']):
+                    name = data['name']
+                    sex = request.form['sex']
+                    time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    program = request.form['Program']
+                    GetData.Adddata('Program', ['Name', 'Sex', 'Time', 'Program', 'Id'], [name, sex, time, program, id])
+            add_datas = [program + '-', id]
+            GetData.where_addtext('Toll_order', add_datas, 'program', 'Id', 'Onlyone')
+
             return render_template('Docter.html', data=datas)
         if 'putorder' in request.form:
             result = request.form.getlist('results[]')
@@ -77,7 +134,7 @@ def Doctor():
             for i in range(0, len(result)):
                 datas[i]['text'] = result[i]
                 adddata.append([result[i], str(datas[i]['Id'])])
-            if GetData.where_add("Toll_order", adddata) == 0:
+            if GetData.where_add("Toll_order", adddata, 'Text', 'Id') == 0:
                 print("无法保存数据！")
             datas = [Data for Data in datas if Data['text'] is None]
             return render_template('Docter.html', data=datas)
@@ -85,10 +142,52 @@ def Doctor():
 
 @All_bp.route('/Doctor_prescription', methods=['GET', 'POST'])
 def Doctor_prescription():
-    print(request.method)
+    # TODO 医生开药方 应该可以多开几种药，同时能对自己开的药可以预览
     datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
     datas = [Data for Data in datas if Data['text'] is not None]
-    print(datas)
+    if 'order' in request.form:
+        mecnumber = request.form.getlist('results[]')
+        mecid = request.form.getlist('kind[]')
+        Medicine_info = session['Medicine_info']
+        matched_medicines = {}
+        for i, mecid_value in enumerate(mecid):
+            for medicine in Medicine_info:
+                if medicine['id'] == mecid_value:
+                    matched_medicines[mecid_value] = [medicine['id'], medicine['medicname'], medicine['price'],
+                                                      mecnumber[i]]
+                    break
+        all_mec = [matched_medicines[key] for key in mecid if key in matched_medicines]
+        Toler = []
+        for i in range(0, len(datas)):
+            text = all_mec[i][1] + '*' + all_mec[i][3] + '盒——'
+            Toler.append([text, datas[i]['Id']])
+        GetData.where_addtext('Toll_order', Toler, 'prescription', 'Id', 'Some')
+        all_mecdic = []
+        # 修改库存逻辑
+        for item in all_mec:
+            converted_dict = {
+                'MedicineName': item[1],
+                'MedicineID': item[0],
+                'Price': item[2],
+                'Number': item[3]
+            }
+            all_mecdic.append(converted_dict)
+        session['all_mec'] = all_mecdic
+        Medicine_info = MedicineData.Get_medicine()
+        for i in all_mecdic:
+            update_dict = {i['MedicineID']: i['Number']}
+            for medicine in Medicine_info:
+                if medicine['MedicineID'] in update_dict:
+                    medicine['Number'] = str(int(medicine['Number']) - int(update_dict[medicine['MedicineID']]))
+        # 判断药品不足
+        alter_Medicine_info = []
+        for i in Medicine_info:
+            if int(i['Number']) < 0:
+                flash(i['MedicineName'] + '不足！还差' + str(-int(i['Number'])) + '请联系药房人员补货！')
+                i['Number'] = 0
+            alter_Medicine_info.append([i['Number'], i['MedicineID']])
+        GetData.where_add('Medicine_info', alter_Medicine_info, 'Number', 'MedicineID')
+
     return render_template('Docter.html', datas=datas)
 
 
@@ -122,6 +221,7 @@ def Inspection():
 
 @All_bp.route('/Pharmacy', methods=['GET', 'POST'])
 def Pharmacy():
+
     if request.method == 'POST':
         if 'Medicinealter' in request.form:  # 修改库存
             # Kindname = ['MedicineID', 'MedicineName', 'Price', 'Number']
@@ -153,3 +253,31 @@ def show_image():
     img.save(img_byte_arr, format='PNG')
     img_byte_arr = img_byte_arr.getvalue()
     return Response(img_byte_arr, mimetype='image/png')
+
+
+@All_bp.route('/api/Kindname', methods=['GET'])
+def get_kindname():
+    datas = GetData.Getdata("Toll_order",
+                            ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text', 'prescription',
+                             'program'])
+    options_datas = []
+    for data in datas:
+        options_data = {}
+        options_data["value"] = data["Id"]
+        options_data["text"] = data["name"]
+        options_datas.append(options_data)
+    return jsonify(options_datas)
+
+
+@All_bp.route('/api/kinds', methods=['GET'])
+def get_kinds():
+    session['text'] = []
+    datas = GetData.Getdata('Medicine_info', ['medicname', 'id', 'price', 'number'])
+    session['Medicine_info'] = datas
+    options_datas = []
+    for data in datas:
+        options_data = {}
+        options_data["value"] = data["id"]
+        options_data["text"] = data["medicname"]
+        options_datas.append(options_data)
+    return jsonify(options_datas)

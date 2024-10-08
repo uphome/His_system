@@ -2,83 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        /* 可选的CSS样式 */
-        .flash-messages {
-            list-style-type: none;
-            padding: 0;
-            margin: 20px 0;
-            text-align: center;
-        }
-        .flash-messages li {
-            padding: 10px;
-            background-color: #f2dede;
-            color: #a94442;
-            margin-bottom: 5px;
-            border: 1px solid #ebccd1;
-            border-radius: 4px;
-        }
-            table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-        }
-    </style>
-    <!-- 引入jQuery库 -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // 设置定时器，在5秒后自动隐藏flash消息
-            setTimeout(function() {
-                $('.flash-messages').fadeOut(300); // 500毫秒内淡出
-            }, 1000); // 5秒后执行
-        });
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table with Input Boxes</title>
 </head>
 <body>
-<div style="text-align: center;">
-    <h1>检验结果</h1>
-    <form action="{{ url_for('All_bp.Toll') }}" method="post">
-                <table>
+    <h1>Modify Table Data</h1>
+    <form id="update-form">
+        <table border="1">
             <tr>
-                <th>姓名</th>
-                <th>检验项目</th>
-                <th>申请时间</th>
-                <th>检验结果</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Value</th>
+                <th>Update</th>
             </tr>
-            {% for item in data %}
+            {% for row in table_data %}
             <tr>
-                <td>{{ item.MedicineID }}</td>
-                <td>{{ item.MedicineName }}</td>
-                <td>{{ item.Price }}</td>
-                <td><input type="text" id="username" name="username" required><td>
+                <td>{{ row['id'] }}</td>
+                <td>{{ row['name'] }}</td>
+                <td>
+                    <input type="text" name="value" value="{{ row['value'] }}" data-id="{{ row['id'] }}" />
+                </td>
+                <td>
+                    <button type="button" onclick="updateRow(this)">Update</button>
+                </td>
             </tr>
             {% endfor %}
         </table>
-
-
-
-
-        <input type="submit" value="挂号" name="Setorder">
     </form>
-     <h1>Patient Information</h1>
 
-</div>
-<!-- 修改flash消息的HTML结构，添加flash-messages类 -->
-<div class="flash-messages">
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
-</div>
+    <script>
+        function updateRow(button) {
+            // 找到包含按钮的行
+            var row = button.parentNode.parentNode;
+            // 找到输入框并获取其值
+            var input = row.querySelector('input[name="value"]');
+            var newValue = input.value;
+            // 找到与输入框关联的ID
+            var rowId = input.getAttribute('data-id');
 
+            // 创建一个FormData对象来存储要发送的数据
+            var formData = new FormData();
+            formData.append('id', rowId);
+            formData.append('value', newValue);
+
+            // 发送异步POST请求到/update路由
+            fetch('/update', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Data updated successfully!');
+                } else {
+                    alert('Failed to update data.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            });
+        }
+    </script>
 </body>
 </html>

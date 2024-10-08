@@ -92,7 +92,30 @@
             </tr>
             {% endfor %}
         </table>
-
+ <h1>病人收费</h1>
+<form action="{{ url_for('All_bp.toll_price') }}" method="post">
+    <table>
+        <tr>
+            <th>病历ID</th>
+            <th>姓名</th>
+            <th>处方</th>
+            <th>检验项目</th>
+            <th>费用</th>
+        </tr>
+        {% for item in data_price %}
+        <tr>
+            <td>{{ item.Id }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.prescription }}</td>
+            <td>{{ item.program }}</td>
+            <td>{{ item.cost }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="5" align="center"><input type="submit" value="刷新" name="Refresh"><input type="submit" value="提交" name="priceorder"></td>
+        </tr>
+    </table>
+    </form>
 </div>
 <!-- 修改flash消息的HTML结构，添加flash-messages类 -->
 <div class="flash-messages">

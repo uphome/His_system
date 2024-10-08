@@ -54,8 +54,7 @@
 <div style="text-align: center;">
     <h1>检验申请</h1>
     <form action="{{ url_for('All_bp.Doctor') }}" method='post'>
-        <label for="username">姓名:</label>
-        <input type="text" id="username" name="username" required>
+         <select class="Kindname" name="Kindid" required></select>
         <label for="sex">性别:</label>
          <select id="sex" name="sex" required>
             <option value="男">男</option>
@@ -74,6 +73,39 @@
         </select>
         <input type="submit" value="申请" name="Postorder">
     </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const selectElements = document.querySelectorAll('.Kindname');
+
+        // Simulate fetching data from the backend
+         fetch('http://10.150.163.75:5001/api/Kindname')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                selectElements.forEach(selectElement => {
+                    // Clear any existing options
+                    selectElement.innerHTML = '';
+
+                    // Populate the select element with new options
+                    data.forEach(option => {
+                        const newOption = document.createElement('option');
+                        newOption.value = option.value;
+                        newOption.textContent = option.text;
+                        selectElement.appendChild(newOption);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+                alert('Failed to load options from the server.');
+            });
+    });
+</script>
+
     <h1>填写病历</h1>
     <form action="{{ url_for('All_bp.Doctor') }}" method="post">
     <table>
@@ -109,6 +141,7 @@
         <th>需开药方</th>
         <th>数量</th>
 
+
     </tr>
     {% for items in datas %}
     <tr>
@@ -117,16 +150,17 @@
         <td>{{ items.gender }}</td>
         <td>{{ items.text}}</td>
         <td>
-            <select class="Kind" name="prescriptions[{{ loop.index0 }}][kind]" required></select>
+            <select class="Kind" name="kind[]" required></select>
         </td>
-       <td><input type="text" name="prescriptions[{{ loop.index0 }}][results]" required style="width: 40px;"></td>
+       <td><input type="text" name="results[]" required style="width: 40px;"></td>
     </tr>
     {% endfor %}
     <tr>
-        <td colspan="6" align="center"><input type="submit" value="刷新" name="Refresh"><input type="submit" value="提交" name="order"></td>
+        <td colspan="7" align="center"><input type="submit" value="刷新" name="Refresh"><input type="submit" value="提交" name="order"></td>
     </tr>
     </table>
 </form>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {

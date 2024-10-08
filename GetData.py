@@ -40,7 +40,7 @@ def Getdata(Dataname, Kindname):
 
 
 # Getdata('Medicine_info', ['MedicineName', 'MedicineID', 'Price', 'Number'])
-def where_add(Dataname, AddDatas):
+def where_add(Dataname, AddDatas,Set,Where):
     conn_str = (
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=localhost;'
@@ -53,10 +53,10 @@ def where_add(Dataname, AddDatas):
         print("链接成功!")
     try:
         cursor = conn.cursor()
-        sql = ('UPDATE '+ Dataname+ ' SET Text = ?  WHERE Id = ?')
+        sql = ('UPDATE '+ Dataname+ ' SET '+Set+' = ?  WHERE '+Where+' = ?')
         for AddData in AddDatas:
             cursor.execute(sql, AddData)
-        print('挂号数据成功写入!')
+        print('数据成功写入!')
         conn.commit()
     except pyodbc.Error as e:
         print(f"数据库操作失败: {e}")
@@ -67,6 +67,47 @@ def where_add(Dataname, AddDatas):
         conn.close()
         return 1
 
+
+def where_addtext(dataname, add_datas,set_field,  where_field,index):
+    conn_str = (
+        r'DRIVER={ODBC Driver 17 for SQL Server};'
+        r'SERVER=localhost;'
+        r'DATABASE=His_info;'
+        r'Trusted_Connection=yes;'
+    )
+    try:
+        # 创建连接
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+
+        # 构造SQL更新语句
+
+        sql = f"""  
+                    UPDATE {dataname}  
+                    SET {set_field} = ISNULL({set_field}, '') + ?  
+                    WHERE {where_field} = ?  
+                    """
+
+        # 执行批量更新
+        if index == "Some":
+            for append_text, condition_value in add_datas:
+               cursor.execute(sql, (append_text, condition_value))
+        if index == "Onlyone":
+            cursor.execute(sql, add_datas)
+        # 提交事务
+        conn.commit()
+        print('数据成功写入!')
+        return 1  # 表示操作成功
+
+    except pyodbc.Error as e:
+        print(f"数据库操作失败: {e}")
+        conn.rollback()  # 回滚事务
+        return 0  # 表示操作失败
+
+    finally:
+        # 关闭游标和连接
+        cursor.close()
+        conn.close()
 
 def Adddata(Dataname, Kindname, AddData):
     conn_str = (

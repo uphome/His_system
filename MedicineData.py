@@ -8,11 +8,15 @@ import GetData
 def Get_medicine():
     data = GetData.Getdata('Medicine_info', ['MedicineName', 'MedicineID', 'Price', 'Number'])
     return data
+
+
 def Add_medicine():
     return 0
-def Alter_medicine(AddData): #特殊函数
-    Dataname='Medicine_info'
-    Kindname=['MedicineName', 'MedicineID', 'Price', 'Number']
+
+
+def Alter_medicine(AddData):  # 特殊函数
+    Dataname = 'Medicine_info'
+    Kindname = ['MedicineName', 'MedicineID', 'Price', 'Number']
     conn_str = (
         r'DRIVER={ODBC Driver 17 for SQL Server};'
         r'SERVER=localhost;'
@@ -35,7 +39,8 @@ def Alter_medicine(AddData): #特殊函数
         sql2 = sql2 + '?'
         sql3 = sql3 + '\'' + AddData[-1] + '\''
         sql = ('INSERT INTO dbo.' + Dataname + ' (' + sql1 + ') VALUES (' + sql2 + ')')
-        str = ('MERGE INTO dbo.' + Dataname + ' AS target USING (VALUES (' + sql3 + ')) AS source (MedicineID, MedicineName, Price, Number) ON target.MedicineID = source.MedicineID WHEN MATCHED THEN UPDATE SET MedicineName = source.MedicineName, Price = source.Price, Number = source.Number WHEN NOT MATCHED THEN INSERT (MedicineID, MedicineName, Price, Number) VALUES (source.MedicineID, source.MedicineName, source.Price, source.Number);')
+        str = (
+                    'MERGE INTO dbo.' + Dataname + ' AS target USING (VALUES (' + sql3 + ')) AS source (MedicineID, MedicineName, Price, Number) ON target.MedicineID = source.MedicineID WHEN MATCHED THEN UPDATE SET MedicineName = source.MedicineName, Price = source.Price, Number = source.Number WHEN NOT MATCHED THEN INSERT (MedicineID, MedicineName, Price, Number) VALUES (source.MedicineID, source.MedicineName, source.Price, source.Number);')
 
         cursor.execute(str)
         print('挂号数据成功写入!')
