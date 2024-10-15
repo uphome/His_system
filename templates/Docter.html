@@ -78,7 +78,7 @@
         const selectElements = document.querySelectorAll('.Kindname');
 
         // Simulate fetching data from the backend
-         fetch('http://10.150.163.75:5001/api/Kindname')
+         fetch('http://10.249.108.194:5001/api/Kindname')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -106,8 +106,30 @@
     });
 </script>
 
-    <h1>填写病历</h1>
+
     <form action="{{ url_for('All_bp.Doctor') }}" method="post">
+        <h1>检验结果</h1>
+        <table>
+        <tr>
+            <th>ID</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>挂号时间</th>
+            <th>检验项目</th>
+            <th>检验结果</th>
+        </tr>
+        {% for item in programdata %}
+        <tr>
+            <td>{{ item.Id }}</td>
+            <td>{{ item.Name }}</td>
+            <td>{{ item.Sex }}</td>
+            <td>{{ item.Time }}</td>
+            <td>{{ item.Program }}</td>
+            <td>{{ item.Result }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+        <h1>填写病历</h1>
     <table>
         <tr>
             <th>病历ID</th>
@@ -128,7 +150,9 @@
         <tr>
             <td colspan="5" align="center"><input type="submit" value="提交" name="putorder"></td>
         </tr>
+
     </table>
+
     </form>
     <h1>填写药方</h1>
     <form action="{{ url_for('All_bp.Doctor_prescription') }}" method='POST'>
@@ -140,8 +164,6 @@
         <th>诊断结果</th>
         <th>需开药方</th>
         <th>数量</th>
-
-
     </tr>
     {% for items in datas %}
     <tr>
@@ -162,12 +184,24 @@
 </form>
 
 
+
+
+    <script>
+        function navigateToTarget() {
+            window.location.href = '/';
+        }
+    </script>
+
+
+    <h3>返回登录界面</h3>
+    <button onclick="navigateToTarget()">返回</button>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const selectElements = document.querySelectorAll('.Kind');
 
         // Simulate fetching data from the backend
-         fetch('http://10.150.163.75:5001/api/kinds')
+         fetch('http://10.249.108.194:5001/api/kinds')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

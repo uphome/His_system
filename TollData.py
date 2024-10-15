@@ -10,7 +10,9 @@ def AddToll(ID, Name, Gender,Age,DocterId):
     )
     # 创建连接
     conn = pyodbc.connect(conn_str)
-    if (conn != 1):
+    if conn:
+        print("链接成功!")
+    else:
         print("链接失败!")
     current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     try:
@@ -39,7 +41,9 @@ def GetToll():
     )
     # 创建连接
     conn = pyodbc.connect(conn_str)
-    if (conn!=1):
+    if conn:
+        print("链接成功!")
+    else:
         print("链接失败!")
 
     # 创建一个Cursor对象并执行SQL查询

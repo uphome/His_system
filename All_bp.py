@@ -1,16 +1,15 @@
 import io
 import re
 from datetime import datetime
-
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session, Response, jsonify
+from flask import Blueprint, render_template,  request, flash, session, Response, jsonify
 import random
 import time
-
 import Captcha_get
 import GetData
 import Inspection_data
 import MedicineData
 import TollData
+import UserSet
 
 program_price = {'核磁共振': 200, 'X光': 100, '粪便检验': 200, '血常规': 100, '血生化': 200, '凝血功能检查': 300,
                  '尿液检验': 350, '粪便检验': 400}
@@ -65,19 +64,23 @@ def toll_price():
                 program_tuples.append((patient_id, patient_name))
                 break
     medicines_dict = {med['medicname']: int(med['price']) for med in datas_Medicine}
-    Price=[]
-    for i in range(0,len(program_tuples)):
+    Price = []
+    for i in range(0, len(program_tuples)):
         total_proprice = 0
-        #TODO 这里的bug在于如果是空 会直接报错 没有验证下面这么写能不能跳过
+        # TODO 这里的bug在于如果是空 会直接报错 没有验证下面这么写能不能跳过
         if program_tuples is None:
             flash('存在项目为空的状态')
             break
+        if program_tuples[i][1] ==None:
+            return render_template('Setorder.html')
         stripped_string = program_tuples[i][1].strip('-')
         project_names = stripped_string.split('-')
         for program in project_names:
-            total_proprice+=(program_price.get(program)*1)
-        Price.append([datas_Toll[i]['Id'],datas_Toll[i]['name'],datas_Toll[i]['prescription'],datas_Toll[i]['program'],total_proprice])
-    for i in range(0,len(patients_tuples)):
+            total_proprice += (program_price.get(program) * 1)
+        Price.append(
+            [datas_Toll[i]['Id'], datas_Toll[i]['name'], datas_Toll[i]['prescription'], datas_Toll[i]['program'],
+             total_proprice])
+    for i in range(0, len(patients_tuples)):
         pattern = r'([^*]+)\*(\d+)盒'
         matches = re.findall(pattern, str(patients_tuples[i][1]))
         medicines = []
@@ -89,7 +92,7 @@ def toll_price():
         for record in medicines:
             if record[0] in medicines_dict.keys():
                 total_mecprice += (medicines_dict.get(record[0]) * record[1])
-        Price[i][4]=int(total_mecprice)+Price[i][4]
+        Price[i][4] = int(total_mecprice) + Price[i][4]
     converted_data = []
     for item in Price:
         converted_item = {
@@ -97,20 +100,24 @@ def toll_price():
             'name': item[1],
             'prescription': item[2],
             'program': item[3],
-            'cost':item[4]
+            'cost': item[4]
         }
         converted_data.append(converted_item)
     print(Price)
     return render_template('Setorder.html', data_price=converted_data)
+
 
 @All_bp.route('/Doctor', methods=['GET', 'POST'])
 def Doctor():
     # TODO: 这里 修改病历 的诊断 需要在前端的那里改，要像显示然后直接点进去可以进行修改，后端不用改。 诊断功能：添加、修改病人的诊断结果
     # TODO: 这里医生需不需要看见检验结果
     all_datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
-    datas = [Data for Data in all_datas if Data['text'] is None]
+    datas_program = GetData.Getdata("program", ['Name', 'Sex', 'Time', 'Program', 'Result', 'Id'])
+    print(all_datas)
+    datas = [Data for Data in all_datas if Data['text'] is None ]
+    print(datas)
     if request.method == 'GET':
-        return render_template('Docter.html', data=datas)
+        return render_template('Docter.html', data=datas,programdata=datas_program)
     if request.method == 'POST':
         if 'Postorder' in request.form:
             id = request.form['Kindid']
@@ -124,12 +131,12 @@ def Doctor():
             add_datas = [program + '-', id]
             GetData.where_addtext('Toll_order', add_datas, 'program', 'Id', 'Onlyone')
 
-            return render_template('Docter.html', data=datas)
+            return render_template('Docter.html', data=datas,programdata=datas_program)
         if 'putorder' in request.form:
             result = request.form.getlist('results[]')
             if len(result) == 0:
                 flash("输入为空！请重新输入")
-                return render_template('Docter.html', data=datas)
+                return render_template('Docter.html', data=datas,programdata=datas_program)
             adddata = []
             for i in range(0, len(result)):
                 datas[i]['text'] = result[i]
@@ -137,12 +144,17 @@ def Doctor():
             if GetData.where_add("Toll_order", adddata, 'Text', 'Id') == 0:
                 print("无法保存数据！")
             datas = [Data for Data in datas if Data['text'] is None]
-            return render_template('Docter.html', data=datas)
+            return render_template('Docter.html', data=datas,programdata=datas_program)
+
+
+
+
 
 
 @All_bp.route('/Doctor_prescription', methods=['GET', 'POST'])
 def Doctor_prescription():
     # TODO 医生开药方 应该可以多开几种药，同时能对自己开的药可以预览
+    print("----------------")
     datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
     datas = [Data for Data in datas if Data['text'] is not None]
     if 'order' in request.form:
@@ -205,7 +217,6 @@ def Inspection():
             result = request.form.getlist('results[]')
             if len(result) == 0:
                 return render_template('Inspection.html')
-            print(result)
             for i in range(0, len(result)):
                 index = str(data[i]['Time'])
                 add_Data[index] = result[i]
@@ -221,7 +232,6 @@ def Inspection():
 
 @All_bp.route('/Pharmacy', methods=['GET', 'POST'])
 def Pharmacy():
-
     if request.method == 'POST':
         if 'Medicinealter' in request.form:  # 修改库存
             # Kindname = ['MedicineID', 'MedicineName', 'Price', 'Number']
@@ -239,16 +249,56 @@ def Pharmacy():
     return render_template('Pharmacy.html')
 
 
-@All_bp.route('/superuser')
+@All_bp.route('/superuser',methods=['GET', 'POST'])
 def superuser():
-    return 'System superuser!'
+    print(request.method)
+    if 'GET' == request.method:
+        datas = GetData.Getdata('loginuser', ['name', 'password', 'kind'])
+        dic = {0: '收费人员', 1: '医生', 2: '检验科室人员', 3: '药房人员', 4: '系统超级用户', }
+        for data in datas:
+            data['kind'] = dic[int(data['kind'].strip())]
+            data['name'] = data['name'].strip()
+            data['password'] = data['password'].strip()
+        return render_template('superuser.html', datas=datas)
+    if 'POST' == request.method:
+        if 'signup' in request.form:
+            username = request.form['username']
+            password = request.form['password']
+            Kind = request.form['Kind']
+            if username != '' and password != '' and int(Kind) != '' and 4 >= int(Kind) >= 0:
+                print('格式合格')
+                if UserSet.Adduser(username, password, Kind):
+                    flash("成功注册")
+                    datas = GetData.Getdata('loginuser', ['name', 'password', 'kind'])
+                    dic = {0: '收费人员', 1: '医生', 2: '检验科室人员', 3: '药房人员', 4: '系统超级用户', }
+                    for data in datas:
+                        data['kind'] = dic[int(data['kind'].strip())]
+                        data['name'] = data['name'].strip()
+                        data['password'] = data['password'].strip()
+                    return render_template('superuser.html', datas=datas)
+
+                else:
+                    flash("注册失败")
+
+
+            else:
+                flash("请按照格式进行注册！")
+        else:
+            datas = GetData.Getdata('loginuser', ['name', 'password', 'kind'])
+            dic = {0: '收费人员', 1: '医生', 2: '检验科室人员', 3: '药房人员', 4: '系统超级用户', }
+            for data in datas:
+                data['kind'] = dic[int(data['kind'].strip())]
+                data['name'] = data['name'].strip()
+                data['password'] = data['password'].strip()
+    return render_template('superuser.html')
 
 
 @All_bp.route('/captcha', methods=['GET'])
 def show_image():
     img, text = Captcha_get.generate_captcha()
-    session['captcha_text'] = '1'
-    # session['captcha_text'] = text
+    #session['captcha_text'] = '1'
+    session['captcha_text'] = text
+    print(text)
     img_byte_arr = io.BytesIO()
     img.save(img_byte_arr, format='PNG')
     img_byte_arr = img_byte_arr.getvalue()

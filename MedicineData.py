@@ -25,7 +25,9 @@ def Alter_medicine(AddData):  # 特殊函数
     )
     # 创建连接
     conn = pyodbc.connect(conn_str)
-    if conn != 1:
+    if conn:
+        print("链接成功!")
+    else:
         print("链接失败!")
     try:
         cursor = conn.cursor()

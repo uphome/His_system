@@ -111,11 +111,17 @@
             <td>{{ item.cost }}</td>
         </tr>
         {% endfor %}
-        <tr>
-            <td colspan="5" align="center"><input type="submit" value="刷新" name="Refresh"><input type="submit" value="提交" name="priceorder"></td>
-        </tr>
     </table>
     </form>
+    <script>
+        function navigateToTarget() {
+            window.location.href = '/';
+        }
+    </script>
+
+
+    <h3>返回登录界面</h3>
+    <button onclick="navigateToTarget()">返回</button>
 </div>
 <!-- 修改flash消息的HTML结构，添加flash-messages类 -->
 <div class="flash-messages">

@@ -28,21 +28,6 @@ def login():
                                 return redirect(url_for(url_array[int(Kind)]))
 
             flash("输入信息错误 请重新输入")
-
-        if 'signup' in request.form:
-            username = request.form['username']
-            password = request.form['password']
-            Kind = request.form['Kind']
-
-            if username != '' and password != '' and int(Kind) != '' and 5 >= int(Kind) >= 1:
-                if UserSet.Adduser(username, password, Kind):
-                    flash("成功注册")
-                else:
-                    flash("注册失败")
-
-
-            else:
-                flash("请按照格式进行注册！")
     if request.method == 'GET':
         return render_template('login.html')
     return render_template('login.html')
