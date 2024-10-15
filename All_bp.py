@@ -159,7 +159,6 @@ def Doctor():
 @All_bp.route('/Doctor_prescription', methods=['GET', 'POST'])
 def Doctor_prescription():
     # TODO 医生开药方 应该可以多开几种药，同时能对自己开的药可以预览
-    print("----------------")
     datas = GetData.Getdata("Toll_order", ['Id', 'name', 'gender', 'age', 'docterid', 'Datetime', 'text'])
     datas = [Data for Data in datas if Data['text'] is not None]
     if 'order' in request.form:

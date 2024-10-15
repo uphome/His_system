@@ -16,9 +16,7 @@ def generate_captcha(size=(120, 40), chars=string.ascii_letters + string.digits,
     # 添加一些噪点
     for _ in range(25):
         draw.point((random.randint(0, size[0]), random.randint(0, size[1])), fill=(0, 0, 0))
-
     image = image.filter(ImageFilter.GaussianBlur(radius=1.5))
-
     return image, captcha_text
 
 
