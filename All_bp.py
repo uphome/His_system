@@ -70,8 +70,11 @@ def toll_price():
         # TODO 这里的bug在于如果是空 会直接报错 没有验证下面这么写能不能跳过
         if program_tuples is None:
             flash('存在项目为空的状态')
+            print('存在项目为空的状态1')
             break
         if program_tuples[i][1] ==None:
+            flash("有人没有申请项目！")
+            print('存在项目为空的状态111111')
             return render_template('Setorder.html')
         stripped_string = program_tuples[i][1].strip('-')
         project_names = stripped_string.split('-')
@@ -80,6 +83,8 @@ def toll_price():
         Price.append(
             [datas_Toll[i]['Id'], datas_Toll[i]['name'], datas_Toll[i]['prescription'], datas_Toll[i]['program'],
              total_proprice])
+        print('----')
+        print(Price)
     for i in range(0, len(patients_tuples)):
         pattern = r'([^*]+)\*(\d+)盒'
         matches = re.findall(pattern, str(patients_tuples[i][1]))
@@ -103,7 +108,7 @@ def toll_price():
             'cost': item[4]
         }
         converted_data.append(converted_item)
-    print(Price)
+    print(converted_data)
     return render_template('Setorder.html', data_price=converted_data)
 
 
